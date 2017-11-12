@@ -24,7 +24,7 @@ line_config = {
 
 bar_config = {
 	'color': [38, 214, 161, 1], #[reg, green, blue opacity]
-	'barwidth': 0.5,
+	'barwidth': 0.6,
 }
 
 color_cycle_len = len(color_cycles)

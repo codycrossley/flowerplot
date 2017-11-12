@@ -61,12 +61,18 @@ class FlowerPlot(object):
 			w = self.width - self.margin_left - self.margin_right
 			h = self.height - self.margin_top - self.margin_bottom
 
+			color_index = 0
+
 			for flower in self.lines:
+				flower.color = color_cycles[color_index%num_colors]
+				color_index += 1
 				c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax)
 				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 				self.svg.append(c)
 
 			for flower in self.scatters:
+				flower.color = color_cycles[color_index%num_colors]
+				color_index += 1
 				c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax)
 				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 				self.svg.append(c)
@@ -78,7 +84,8 @@ class FlowerPlot(object):
 				min_x_dist = np.min(np.diff(sorted(list(set(olive_x)))))
 				max_repeat = Counter(olive_x).most_common(1)[0][1]
 				for i, flower in enumerate(self.bars):
-					flower.color = color_cycles[i]
+					flower.color = color_cycles[color_index%num_colors]
+					color_index += 1
 					c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax, len(self.bars), i, max_repeat, min_x_dist)
 					c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 					self.svg.append(c)
