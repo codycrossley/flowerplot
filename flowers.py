@@ -30,7 +30,7 @@ bar_config = {
 color_cycle_len = len(color_cycles)
 
 class Flower(object):
-	def __init__(self, xdata, ydata):
+	def __init__(self, xdata, ydata, **kwargs):
 		self.xdata = xdata
 		self.ydata = ydata
 
@@ -56,8 +56,14 @@ class Flower(object):
 class Scatter(Flower):
 	def __init__(self, xdata, ydata, **kwargs):
 		super().__init__(xdata, ydata)
-		self.color = kwargs.get('color', scatter_config['color'])
+		self.color = kwargs.get('color', False)
+		if self.color:
+			self.assigned_color = True
+		else:
+			self.color = color_cycles[0]
+			self.assigned_color = False
 		self.markersize = kwargs.get('markersize', scatter_config['markersize'])
+
 
 	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax):
 		if self.x_dtype == 'numeric':
@@ -79,8 +85,13 @@ class Scatter(Flower):
 class Line(Flower):
 	def __init__(self, xdata, ydata, **kwargs):
 		super().__init__(xdata, ydata)
-		self.color = kwargs.get('color', line_config['color'])
 		self.strokewidth = kwargs.get('strokewidth', line_config['strokewidth'])
+		self.color = kwargs.get('color', False)
+		if self.color:
+			self.assigned_color = True
+		else:
+			self.color = color_cycles[0]
+			self.assigned_color = False
 
 	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax):
 		if self.x_dtype == 'numeric':
@@ -102,16 +113,20 @@ class Line(Flower):
 class Bar(Flower):
 	def __init__(self, xdata, ydata, **kwargs):
 		super().__init__(xdata, ydata)
-		self.color = kwargs.get('color', bar_config['color'])
+		self.color = kwargs.get('color', False)
+		if self.color:
+			self.assigned_color = True
+		else:
+			self.color = color_cycles[0]
+			self.assigned_color = False
 		self.barwidth = kwargs.get('barwidth', bar_config['barwidth'])
 
-	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax, numbarcharts, barid, max_repeat, min_x_dist):
+	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax, numbarcharts, barid, max_repeat, min_x_dist, longest_x, **kwargs):
 		barheights = [abs(height*(y)/(ymax-ymin)) for y in ydata]
 
 		if self.x_dtype == 'numeric':
-			xdata_count = len(xdata)
-			#min_x_dist = np.min(np.diff(sorted(xdata)))
-			barwidth = max(min(width/xdata_count, width*(min_x_dist)/(xmax-xmin))*self.barwidth, 1)/max_repeat
+			#xdata_count = len(set(xdata))
+			barwidth = max(min(width/longest_x, width*(min_x_dist)/(xmax-xmin))*self.barwidth, 1)/max_repeat
 			xpositions = [width*(x-xmin)/(xmax-xmin)  for x in xdata]
 
 			bars = et.Element('g')
@@ -133,7 +148,9 @@ class Bar(Flower):
 				bar.set('height', f"{barheights[i]}")
 				bars.append(bar)
 		elif self.x_dtype == 'string':
-			pass
+			xdata_count = len(set(xdata))
+			barwidth = max(min(width/xdata_count, width*(min_x_dist)/(xmax-xmin))*self.barwidth, 1)/max_repeat
+
 
 		return bars
 
