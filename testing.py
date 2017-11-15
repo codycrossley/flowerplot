@@ -7,17 +7,22 @@ from datetime import datetime, time, date
 from collections import Counter
 
 
-flower2 = flowers.Line([i for i in range(8)], [i**2/10 for i in range(8)], strokewidth=5)
+flower2 = flowers.Line(np.array([i for i in range(8)]), [i**2/10 for i in range(8)], strokewidth=5, color=[38,214,161,1])
 flower1 = flowers.Line([-1,0, 1.3, 1.4, 2], [-1, 2, 0, 1.2, 2], markersize=5)
 flower3 = flowers.Bar([1,10,3,6], [2,2,2,2])
 flower4 = flowers.Bar([-1,5,6,15], [2,2,2,2])
-flower5 = flowers.Bar([0,1,2,3,4,5,6,7], [1, 1, 1, 1, 1, 1, 1, 2])
+flower5 = flowers.Bar([0,1,2,3,4,5,6,7], np.array([1, 1, 1, 1, 1, 1, 1, 2]))
 flower7 = flowers.Bar([0,1,2,3,4,5,6,7], [1, 1, 1, 1, 1, 1, 1, 2])
 flower8 = flowers.Bar([0,1,2,3,4,5,6,7], [1, 1, 1, 1, 1, 1, 1, 2])
-flower6 = flowers.Bar([1, 2, 3], [3,3,3])
+flower6 = flowers.Bar([1, 2, 3], [-3,3,-3])
 
 fp = flowerplot.FlowerPlot(flowers=[
-	flower1
+	#flower1,
+	flower2,
+	flower3,
+	flower4,
+	flower5,
+	flower6
 	], margins=[100,100,100,100])
 
 fp.save("tests/img/sample.svg")

@@ -13,10 +13,28 @@ svg_config = {
 	'xml:space':'preserve',
 }
 
+x_config = {
+	'show': True,
+	'show_ticks': True,
+	'ticks': 4,
+	'zeroline': True,
+	'axis_color': [119, 116, 115, 1],
+	'grid_color': [219, 216, 215, 1],
+}
+
+y_config = {
+	'show': True,
+	'show_ticks': True,
+	'ticks': 4,	
+	'zeroline': True,
+	'axis_color': [119, 116, 115, 1],
+	'grid_color': [219, 216, 215, 1],
+}
+
 num_colors = len(color_cycles)
 
 class FlowerPlot(object):
-	def __init__(self, flowers=[], width=1000, height=1000, margins=[100, 100, 100, 100], **kwargs):
+	def __init__(self, flowers=[], width=1000, height=1000, margins=[100, 100, 100, 100], x_axis=x_config, y_axis=y_config, **kwargs):
 		self.flowers = flowers
 		self.width = width
 		self.height = height
@@ -44,7 +62,7 @@ class FlowerPlot(object):
 		for i, flower in enumerate(flowers):
 			olive_x += flower.xdata
 			olive_y += flower.ydata
-			
+
 		# Include 0 in olive_y if a bar chart is present because bar charts
 		# will include 0 into it by default
 		if self.bars and len(self.y_dtypes) == 1 and 'numeric' in self.y_dtypes:
@@ -60,7 +78,7 @@ class FlowerPlot(object):
 			raise Exception("Incompatible data types have been specified for at least one axis.")
 
 		self.plant()
-		self.grid = gr.Grid(self.package_for_grid()).grid_as_element()
+		self.grid = gr.Grid(self.package_for_grid(), x_axis=x_axis, y_axis=y_axis).grid_as_element()
 
 
 	def plant(self):

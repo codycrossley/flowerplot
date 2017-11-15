@@ -31,8 +31,16 @@ color_cycle_len = len(color_cycles)
 
 class Flower(object):
 	def __init__(self, xdata, ydata, **kwargs):
-		self.xdata = xdata
-		self.ydata = ydata
+		print(type(xdata))
+		if isinstance(xdata, list):
+			self.xdata = xdata
+		elif isinstance(xdata, np.ndarray):
+			self.xdata = list(xdata)
+
+		if isinstance(ydata, list):
+			self.ydata = ydata
+		elif isinstance(ydata, np.ndarray):
+			self.ydata = list(ydata)
 
 		if all(isinstance(x, numbers.Number) for x in self.xdata):
 			self.x_dtype = 'numeric'
