@@ -3,7 +3,7 @@ import numpy as np
 import flowers as fl
 import grids as gr
 from collections import Counter
-from styling import color_cycles
+from styling import color_cycles, x_config, y_config
 
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
@@ -11,24 +11,6 @@ svg_config = {
 	'xmlns':'http://www.w3.org/2000/svg',
 	'xmlns:xlink':'http://www.w3.org/1999/xlink',
 	'xml:space':'preserve',
-}
-
-x_config = {
-	'show': True,
-	'show_ticks': True,
-	'ticks': 4,
-	'zeroline': True,
-	'axis_color': [119, 116, 115, 1],
-	'grid_color': [219, 216, 215, 1],
-}
-
-y_config = {
-	'show': True,
-	'show_ticks': True,
-	'ticks': 4,	
-	'zeroline': True,
-	'axis_color': [119, 116, 115, 1],
-	'grid_color': [219, 216, 215, 1],
 }
 
 num_colors = len(color_cycles)
@@ -43,7 +25,6 @@ class FlowerPlot(object):
 		self.margin_bottom = margins[1]
 		self.margin_left = margins[2]
 		self.margin_right = margins[3]
-		#self.max_x_count = np.max(len(flower.xdata) for flower in flowers)
 		
 		self.svg = et.Element('svg')
 		self.svg.set('viewBox', f"0 0 {width} {height}")
@@ -72,7 +53,6 @@ class FlowerPlot(object):
 				olive_y.append(0)
 		self.distinct_xdata = list(set(olive_x))
 		self.distinct_ydata = list(set(olive_y))
-		#self.distinct_xdata = list(set())
 
 		if len(self.x_dtypes) > 1:
 			raise Exception("Incompatible data types have been specified for at least one axis.")
@@ -88,13 +68,12 @@ class FlowerPlot(object):
 			ymin = np.min([np.min(flower.ydata) for flower in self.flowers])
 			ymax = np.max([np.max(flower.ydata) for flower in self.flowers])
 
-			if len(self.bars) > 0: #any(isinstance(flower, fl.Bar) for flower in self.flowers):
+			if len(self.bars) > 0:
 				if ymax < 0:
 					ymax = 0
 				elif ymin > 0:
 					ymin = 0
 
-			#max_x_count = np.max([len(flower.xdata) for flower in self.flowers])
 			w = self.width - self.margin_left - self.margin_right
 			h = self.height - self.margin_top - self.margin_bottom
 
@@ -142,7 +121,6 @@ class FlowerPlot(object):
 			groups = list(set(olive_x))
 			if any(flower.sort for flower in self.flowers):
 				pass
-			#numgroups = len(groups)
 
 	def package_for_grid(self):
 		return {

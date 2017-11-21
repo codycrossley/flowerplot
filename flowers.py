@@ -31,7 +31,6 @@ color_cycle_len = len(color_cycles)
 
 class Flower(object):
 	def __init__(self, xdata, ydata, **kwargs):
-		print(type(xdata))
 		if isinstance(xdata, list):
 			self.xdata = xdata
 		elif isinstance(xdata, np.ndarray):
@@ -91,8 +90,13 @@ class Scatter(Flower):
 			return None
 
 class Line(Flower):
-	def __init__(self, xdata, ydata, **kwargs):
+	def __init__(self, xdata, ydata, sort=True, **kwargs):
 		super().__init__(xdata, ydata)
+		if sort and self.x_dtype == 'numeric':
+			sortindex = np.argsort(self.xdata)
+			self.xdata = list(np.array(self.xdata)[sortindex])
+			self.ydata = list(np.array(self.ydata)[sortindex])
+			#self.ydata = self.ydata[sortindex]
 		self.strokewidth = kwargs.get('strokewidth', line_config['strokewidth'])
 		self.color = kwargs.get('color', False)
 		if self.color:

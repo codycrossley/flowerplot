@@ -1,7 +1,8 @@
 import xml.etree.ElementTree as et
 import numpy as np
-from styling import color_cycles
+from styling import color_cycles, x_config, y_config
 from math import floor, ceil, log
+from decimal import Decimal
 
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
@@ -11,20 +12,24 @@ svg_config = {
 	'xml:space':'preserve',
 }
 
-gridline_config = {
-	'strokewidth': 1,
-	'color': [219, 216, 215, 1],
-}
+def humanreadable(n, suffix='', precision=1, close=False):
+    prefixes = ['', 'K', 'M', 'B', 'T']
+    tempnum = n
+    for prefix in prefixes:      
+        if abs(tempnum) < 1000:
+            return f"{'%.1f'%tempnum} {prefix}{suffix}"
+        else:
+            tempnum /= 1000
+        
+    return "{:.1E}".format(Decimal(n))
 
-axis_config = {
-	'strokewidth': 2,
-	'color': [119, 116, 115, 1],
-}
 
 class Grid(object):
-	def __init__(self, svg_package, x_axis, y_axis, margins=[50, 50, 50, 50], **kwargs):
-		self.x_config = x_axis # Add a fall-back for situations where user doens't provide all x_axis parameters
-		self.y_config = y_axis
+	def __init__(self, svg_package, x_axis, y_axis, margins=[50, 100, 100, 50], **kwargs):
+		self.x_config = {**x_config, **x_axis}
+		self.y_config = {**y_config, **y_axis}
+
+		#{attr:x_config[attr] for attr in x_config if attr not in x_axis}
 
 		self.grid = et.Element('svg')
 		self.plot = svg_package['svg_element']
@@ -48,9 +53,9 @@ class Grid(object):
 
 		g = et.Element('g')
 		g.set('transform', f"translate({self.margin_left},{self.margin_top})")
-		if x_axis['show']:
+		if self.x_config['show']:
 			g.append(self.construct_x())
-		if y_axis['show']:
+		if self.y_config['show']:
 			g.append(self.construct_y())
 		for e in self.plot:
 			g.append(e)
@@ -60,57 +65,130 @@ class Grid(object):
 		return self.grid
 
 	def construct_x(self):
+		ticks=self.x_config['ticks']
+		x_grid = et.Element('g')
+
+		if self.x_config['show_title']:
+			title = et.Element('text')
+			if self.x_config['units']:
+				title.text = f"{self.x_config['title']} ({self.x_config['units']})"
+			else:
+				title.text = f"{self.x_config['title']}"
+			title.set('font-size', f"{self.x_config['title_font_size']}")
+			title.set('text-anchor', 'middle')
+			title.set('x', f"{self.margin_left + self.plot_width/2}")
+			title.set('y', f"{self.margin_top + self.plot_height + self.margin_bottom - self.x_config['title_font_size']}")
+			self.grid.append(title)
+
 		if 'numeric' in self.x_dtypes and len(self.x_dtypes) == 1:
 			xmin = np.min(self.xdata)
 			xmax = np.max(self.xdata)
-			x_grid = et.Element('g')
-
-			if self.x_config['show_ticks']:
-				ticks = self.x_config['ticks']
-				x_grid_labels = precise_ticks(xmin, xmax, ticks)
+			x_grid_labels = precise_ticks(xmin, xmax, ticks)
+			if ticks > 0:
 				x_positions = [[(self.plot_width-self.plot_margins[2]-self.plot_margins[3])*(x - xmin)/(xmax-xmin), x] for x in x_grid_labels]
+			else:
+				x_positions = []
+
+			if self.x_config['show_grid'] and ticks > 0:
 				for x in x_positions:
-					line = GridLine(M=[x[0], self.plot_height-self.plot_margins[0]-self.plot_margins[1]], L=[x[0], 0], color=self.x_config['grid_color'])
+					line = GridLine(
+						M=[x[0], self.plot_height-self.plot_margins[0]-self.plot_margins[1]], 
+						L=[x[0], 0], 
+						color=self.x_config['grid_color'],
+						strokewidth=self.x_config['grid_width'])
 					x_grid.append(line.line_as_element())
 			
 			if xmin <= 0 <= xmax and self.x_config['zeroline']:
 				xpos = (self.plot_width-self.plot_margins[2]-self.plot_margins[3])*(0 - xmin)/(xmax-xmin)
-				axis = Axis(M=[xpos, self.plot_height-self.plot_margins[0]-self.plot_margins[1]], L=[xpos, 0], color=self.x_config['axis_color'])
+				axis = Axis(
+					M=[xpos, self.plot_height-self.plot_margins[0]-self.plot_margins[1]], 
+					L=[xpos, 0], 
+					color=self.x_config['axis_color'],
+					strokewidth=self.x_config['axis_width'])
 				x_grid.append(axis.axis_as_element())
+
+			if self.x_config['show_labels'] and ticks > 0:
+				labels = et.Element('g')
+				for i, label in enumerate(x_grid_labels):
+					text = et.Element('text')
+					text.text = f"{humanreadable(label)}"
+					text.set('x', f"{self.margin_left + self.plot_margins[2] + x_positions[i][0]}")
+					text.set('y', f"{self.margin_top + self.plot_height - self.plot_margins[1] + 2*self.x_config['font_size']}")
+					text.set('text-anchor', 'middle')
+					text.set('font-size', f"{self.x_config['font_size']}")
+					labels.append(text)
+				self.grid.append(labels)
 
 			x_grid.set('transform', f"translate({self.plot_margins[2]},{self.plot_margins[0]})")
 			return x_grid
 
 	def construct_y(self):
+		ticks = self.y_config['ticks']
+		y_grid = et.Element('g')
+
+		if self.y_config['show_title']:
+			title = et.Element('text')
+			if self.y_config['units']:
+				title.text = f"{self.y_config['title']} ({self.y_config['units']})"
+			else:
+				title.text = f"{self.y_config['title']}"
+			title.set('font-size', f"{self.y_config['title_font_size']}")
+			title.set('text-anchor', 'middle')
+			title.set('x', f"{self.y_config['title_font_size']}")
+			title.set('y', f"{self.margin_top + self.plot_height/2}")
+			title.set('transform', f"rotate(-90 {self.y_config['title_font_size']} {self.margin_top + self.plot_height/2})")
+			self.grid.append(title)
+
 		if 'numeric' in self.y_dtypes and len(self.y_dtypes) == 1:
 			ymin = np.min(self.ydata)
 			ymax = np.max(self.ydata)
-			y_grid = et.Element('g')
-
-			if self.y_config['show_ticks']:
-				ticks = self.y_config['ticks']
-				y_grid_labels = precise_ticks(ymin, ymax, ticks)
+			y_grid_labels = precise_ticks(ymin, ymax, ticks)
+			if ticks > 0:
 				y_positions = [[(self.plot_height-self.plot_margins[0]-self.plot_margins[1])*(y - ymin)/(ymax-ymin), y] for y in y_grid_labels]
+			else:
+				y_positions = []
+
+			if self.y_config['show_grid'] and ticks > 0:
 				for y in y_positions:
-					line = GridLine(M=[0, self.plot_height-self.plot_margins[0]-self.plot_margins[1]-y[0]], L=[self.plot_width-self.plot_margins[2]-self.plot_margins[3], self.plot_height-self.plot_margins[0]-self.plot_margins[1]-y[0]], color=self.y_config['grid_color'])
+					line = GridLine(
+						M=[0, self.plot_height-self.plot_margins[0]-self.plot_margins[1]-y[0]], 
+						L=[self.plot_width-self.plot_margins[2]-self.plot_margins[3], self.plot_height-self.plot_margins[0]-self.plot_margins[1]-y[0]], 
+						color=self.y_config['grid_color'],
+						strokewidth=self.y_config['grid_width'])
 					y_grid.append(line.line_as_element())
 			
 			if ymin <= 0 <= ymax and self.y_config['zeroline']:
 				ypos = (self.plot_height-self.plot_margins[0]-self.plot_margins[1])*(0-ymin)/(ymax-ymin)
-				axis = Axis(M=[0, self.plot_height-self.plot_margins[0]-self.plot_margins[1]-ypos], L=[self.plot_width-self.plot_margins[2]-self.plot_margins[3], self.plot_height-self.plot_margins[0]-self.plot_margins[1]-ypos], color=self.y_config['axis_color'])
+				axis = Axis(
+					M=[0, self.plot_height-self.plot_margins[0]-self.plot_margins[1]-ypos], 
+					L=[self.plot_width-self.plot_margins[2]-self.plot_margins[3], self.plot_height-self.plot_margins[0]-self.plot_margins[1]-ypos], 
+					color=self.y_config['axis_color'],
+					strokewidth=self.y_config['axis_width'])
 				y_grid.append(axis.axis_as_element())
-			
+
+			if self.y_config['show_labels'] and ticks > 0:
+				labels = et.Element('g')
+				for i, label in enumerate(y_grid_labels):
+					text = et.Element('text')
+					text.text = f"{humanreadable(label)}"
+					text.set('x', f"{self.margin_left + self.plot_margins[2] - self.y_config['font_size']}")
+					text.set('y', f"{self.margin_top + self.plot_height - self.plot_margins[1] - y_positions[i][0]}")
+					text.set('text-anchor', 'end')
+					text.set('font-size', f"{self.y_config['font_size']}")
+					labels.append(text)
+				self.grid.append(labels)
+
 			y_grid.set('transform', f"translate({self.plot_margins[2]},{self.plot_margins[0]})")
 			return y_grid
 
 
 class GridLine(object):
-	def __init__(self, M=[0,0], L=[0,0], color=gridline_config['color'], **kwargs):
+	def __init__(self, M=[0,0], L=[0,0], color=[0,0,0,1], strokewidth=1, **kwargs):
 		self.gridline = et.Element('path')
 		self.gridline.set('d', f"M{M[0]},{M[1]} L{L[0]},{L[1]}")
 		self.gridline.set('fill', 'none')
 
-		strokewidth = kwargs.get('strokewidth', gridline_config['strokewidth'])
+		#strokewidth = kwargs.get('strokewidth', gridline_config['strokewidth'])
 		#color = kwargs.get('color', gridline_config['color'])
 
 		self.gridline.set('stroke-width', f"{strokewidth}")
@@ -125,12 +203,12 @@ class GridLine(object):
 
 
 class Axis(object):
-	def __init__(self, M=[0,0], L=[0,0], color=axis_config['color'], **kwargs):
+	def __init__(self, M=[0,0], L=[0,0], color=[0,0,0,1], strokewidth=2, **kwargs):
 		self.axis = et.Element('path')
 		self.axis.set('d', f"M{M[0]},{M[1]} L{L[0]},{L[1]}")
 		self.axis.set('fill', 'none')
 
-		strokewidth = kwargs.get('strokewidth', axis_config['strokewidth'])
+		#strokewidth = kwargs.get('strokewidth', axis_config['strokewidth'])
 		#color = kwargs.get('color', axis_config['color'])
 
 		self.axis.set('stroke-width', f"{strokewidth}")
@@ -142,10 +220,6 @@ class Axis(object):
 
 	def axis_as_string(self):
 		return et.tostring(self.axis).decode('utf-8')
-
-
-
-
 
 
 def rounded_ticks(a, b, ticks):
