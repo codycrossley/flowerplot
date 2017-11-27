@@ -1,3 +1,2 @@
-from flowerplot import FlowerPlot
-from flowers import Scatter, Line, Bar
-
+from . flowerplot import FlowerPlot
+from . flowers import Bar, Scatter, Line

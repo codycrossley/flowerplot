@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as et
 import numpy as np
-from styling import color_cycles, x_config, y_config
+from . styling import color_cycles, x_config, y_config
 from math import floor, ceil, log
 from decimal import Decimal
 

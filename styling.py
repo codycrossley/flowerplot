@@ -13,7 +13,6 @@ x_config = {
 	'show_labels': True,
 	'show_title': True,
 	'ticks': 4,
-	'max_labels': 5, # We use 'ticks' for the number of labels shown, peaking at max_labels
 	'zeroline': True,
 	'axis_color': [119, 116, 115, 1],
 	'grid_color': [219, 216, 215, 1],
@@ -32,7 +31,6 @@ y_config = {
 	'show_labels': True,
 	'show_title': True,
 	'ticks': 4,	
-	'max_labels': 7,
 	'zeroline': True,
 	'axis_color': [119, 116, 115, 1],
 	'grid_color': [219, 216, 215, 1],

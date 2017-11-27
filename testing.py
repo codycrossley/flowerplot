@@ -43,30 +43,4 @@ flower5
 
 fp.save("tests/img/sample.svg")
 
-"""
-
-def rounded_ticks(a, b, ticks):
-    span = floor(b) - ceil(a)
-    dx = (10**floor(log(span, 10)))/10
-    start = dx
-    while start < ceil(a):
-    	start += dx
-
-    jump = dx*floor(span/ticks/dx)
-    return [start + i*jump for i in range(ticks)]
-
-
-def precise_ticks(a, b, ticks):
-	if ticks == 0:
-		pass
-	elif ticks == 1:
-		return [(b-a)/2]
-	elif ticks > 1:
-		return [a+(b-a)*i/float(ticks-1) for i in range(ticks)]
-
-print(precise_ticks(2, 10, 9))
-
-
-"""
-
 

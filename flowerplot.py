@@ -1,9 +1,10 @@
 import xml.etree.ElementTree as et
 import numpy as np
-import flowers as fl
-import grids as gr
 from collections import Counter
-from styling import color_cycles, x_config, y_config
+
+from . import flowers as fl
+from . import grids as gr
+from . styling import color_cycles, x_config, y_config
 
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',

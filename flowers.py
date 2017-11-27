@@ -2,7 +2,7 @@ import xml.etree.ElementTree as et
 import numpy as np
 import pandas as pd
 import numbers
-from styling import color_cycles
+from . styling import color_cycles
 
 # 
 #
@@ -14,12 +14,12 @@ from styling import color_cycles
 
 scatter_config = {
 	'color': [38, 214, 161, 1], #[red, green, blue, opacity]
-	'markersize': 3,
+	'markersize': 5,
 }
 
 line_config = {
 	'color': [38, 214, 161, 1], #[red, green, blue, opacity]
-	'strokewidth': 2,
+	'strokewidth': 3,
 }
 
 bar_config = {
