@@ -8,7 +8,7 @@ color_cycles = [
 
 x_config = {
 	'show': True,
-	'show_ticks': True,
+	#'show_ticks': True,
 	'show_grid': True,
 	'show_labels': True,
 	'show_title': True,
@@ -26,7 +26,7 @@ x_config = {
 
 y_config = {
 	'show': True,
-	'show_ticks': True,
+	#'show_ticks': True,
 	'show_grid': True,
 	'show_labels': True,
 	'show_title': True,

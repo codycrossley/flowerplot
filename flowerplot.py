@@ -1,7 +1,6 @@
 import xml.etree.ElementTree as et
 import numpy as np
 from collections import Counter
-
 from . import flowers as fl
 from . import grids as gr
 from . styling import color_cycles, x_config, y_config
