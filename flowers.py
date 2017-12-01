@@ -60,17 +60,21 @@ class Flower(object):
 		else:
 			self.y_dtype = None
 
-class Scatter(Flower):
-	def __init__(self, xdata, ydata, **kwargs):
-		super().__init__(xdata, ydata)
 		self.color = kwargs.get('color', False)
+		self.opacity = kwargs.get('opacity', False)
+		
 		if self.color:
 			self.assigned_color = True
 		else:
 			self.color = color_cycles[0]
 			self.assigned_color = False
-		self.markersize = kwargs.get('markersize', scatter_config['markersize'])
 
+
+class Scatter(Flower):
+	def __init__(self, xdata, ydata, **kwargs):
+		super().__init__(xdata, ydata, **kwargs)
+		self.markersize = kwargs.get('markersize', scatter_config['markersize'])
+			#self.color[3] = self.opacity
 
 	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax):
 		if self.x_dtype == 'numeric':
@@ -84,6 +88,7 @@ class Scatter(Flower):
 				circle.set('r', f"{self.markersize}")
 				circle.set('fill', f"rgb({self.color[0]},{self.color[1]},{self.color[2]})")
 				circle.set('fill-opacity', f"{self.color[3]}")
+				print(self.color[3])
 				circles.append(circle)
 			return circles
 		else:
@@ -98,12 +103,6 @@ class Line(Flower):
 			self.ydata = list(np.array(self.ydata)[sortindex])
 			#self.ydata = self.ydata[sortindex]
 		self.strokewidth = kwargs.get('strokewidth', line_config['strokewidth'])
-		self.color = kwargs.get('color', False)
-		if self.color:
-			self.assigned_color = True
-		else:
-			self.color = color_cycles[0]
-			self.assigned_color = False
 
 	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax):
 		if self.x_dtype == 'numeric':
@@ -125,12 +124,6 @@ class Line(Flower):
 class Bar(Flower):
 	def __init__(self, xdata, ydata, **kwargs):
 		super().__init__(xdata, ydata)
-		self.color = kwargs.get('color', False)
-		if self.color:
-			self.assigned_color = True
-		else:
-			self.color = color_cycles[0]
-			self.assigned_color = False
 		self.barwidth = kwargs.get('barwidth', bar_config['barwidth'])
 
 	def water(self, xdata, ydata, width, height, xmin, xmax, ymin, ymax, numbarcharts, barid, max_repeat, min_x_dist, longest_x, **kwargs):

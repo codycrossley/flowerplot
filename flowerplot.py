@@ -93,6 +93,8 @@ class FlowerPlot(object):
 					if not flower.assigned_color:
 						flower.color = color_cycles[color_index%num_colors]
 						color_index += 1
+					if flower.opacity or flower.opacity==0:
+						flower.color[3] = flower.opacity
 					c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax, len(self.bars), i, max_repeat, min_x_dist, longest_x)
 					c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 					self.svg.append(c)
@@ -102,6 +104,9 @@ class FlowerPlot(object):
 					flower.color = color_cycles[color_index%num_colors]
 					color_index += 1
 				
+				if flower.opacity or flower.opacity==0:
+					flower.color[3] = flower.opacity
+				
 				c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax)
 				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 				self.svg.append(c)
@@ -110,6 +115,10 @@ class FlowerPlot(object):
 				if not flower.assigned_color:
 					flower.color = color_cycles[color_index%num_colors]
 					color_index += 1
+
+				if flower.opacity or flower.opacity==0:
+					flower.color[3] = flower.opacity
+
 				c = flower.water(flower.xdata, flower.ydata, w, h, xmin, xmax, ymin, ymax)
 				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
 				self.svg.append(c)
