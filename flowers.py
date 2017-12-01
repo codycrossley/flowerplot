@@ -62,7 +62,7 @@ class Flower(object):
 
 		self.color = kwargs.get('color', False)
 		self.opacity = kwargs.get('opacity', False)
-		
+
 		if self.color:
 			self.assigned_color = True
 		else:
@@ -88,7 +88,6 @@ class Scatter(Flower):
 				circle.set('r', f"{self.markersize}")
 				circle.set('fill', f"rgb({self.color[0]},{self.color[1]},{self.color[2]})")
 				circle.set('fill-opacity', f"{self.color[3]}")
-				print(self.color[3])
 				circles.append(circle)
 			return circles
 		else:
