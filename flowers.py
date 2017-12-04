@@ -60,8 +60,8 @@ class Flower(object):
 		else:
 			self.y_dtype = None
 
-		self.color = kwargs.get('color', False)
-		self.opacity = kwargs.get('opacity', False)
+		self.color = kwargs.get('color', None)
+		self.opacity = kwargs.get('opacity', None)
 
 		if self.color:
 			self.assigned_color = True
