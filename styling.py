@@ -9,6 +9,14 @@ color_cycles = [
 	[119, 116, 115],
 ]
 
+svg_config = {
+	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
+	'version':'1.1',
+	'xmlns':'http://www.w3.org/2000/svg',
+	'xmlns:xlink':'http://www.w3.org/1999/xlink',
+	'xml:space':'preserve',
+}
+
 x_config = {
 	'show': True,
 	#'show_ticks': True,

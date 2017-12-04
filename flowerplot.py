@@ -3,8 +3,9 @@ import numpy as np
 from collections import Counter
 from . import flowers as fl
 from . import grids as gr
-from . styling import color_cycles, x_config, y_config
+from . styling import color_cycles, svg_config, x_config, y_config
 
+"""
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
 	'version':'1.1',
@@ -12,6 +13,7 @@ svg_config = {
 	'xmlns:xlink':'http://www.w3.org/1999/xlink',
 	'xml:space':'preserve',
 }
+"""
 
 num_colors = len(color_cycles)
 
