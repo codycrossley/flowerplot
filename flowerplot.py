@@ -27,7 +27,9 @@ class FlowerPlot(object):
 		self.margin_bottom = margins[1]
 		self.margin_left = margins[2]
 		self.margin_right = margins[3]
-		
+		self.x_axis = {**x_config, **x_axis}
+		self.y_axis = {**y_config, **y_axis}
+
 		self.svg = et.Element('svg')
 		self.svg.set('viewBox', f"0 0 {width} {height}")
 		for attr, value in svg_config.items():
@@ -64,6 +66,8 @@ class FlowerPlot(object):
 
 
 	def plant(self):
+		color_index = 0
+
 		if len(self.x_dtypes) == 1 and len(self.y_dtypes) == 1 and 'numeric' in self.x_dtypes and 'numeric' in self.y_dtypes:
 			xmin = np.min([np.min(flower.xdata) for flower in self.flowers])
 			xmax = np.max([np.max(flower.xdata) for flower in self.flowers])
@@ -78,8 +82,6 @@ class FlowerPlot(object):
 
 			w = self.width - self.margin_left - self.margin_right
 			h = self.height - self.margin_top - self.margin_bottom
-
-			color_index = 0
 
 			if self.bars:
 				olive_x = []
@@ -126,12 +128,88 @@ class FlowerPlot(object):
 				self.svg.append(c)
 
 		elif len(self.x_dtypes) == 1 and len(self.y_dtypes) == 1 and 'string' in self.x_dtypes and 'numeric' in self.y_dtypes:
-			olive_x = []
-			for flower in self.flowers:
-				olive_x.append(flower.xdata)
-			groups = list(set(olive_x))
-			if any(flower.sort for flower in self.flowers):
-				pass
+			xmin = 0
+			xmax = self.width
+			ymin = np.min([np.min(flower.ydata) for flower in self.flowers])
+			ymax = np.max([np.max(flower.ydata) for flower in self.flowers])
+
+			if len(self.bars) > 0:
+				if ymax < 0:
+					ymax = 0
+				elif ymin > 0:
+					ymin = 0
+
+			w = self.width - self.margin_left - self.margin_right
+			h = self.height - self.margin_top - self.margin_bottom
+
+			len_distinct_xdata = len(self.distinct_xdata)
+			dx = float((xmax - xmin) / (len_distinct_xdata - 1))
+
+			x_positions = [i*dx for i in range(len_distinct_xdata)]
+
+			if self.x_axis['sort_by'] == 'name':
+				if not self.x_axis['descending']:
+					self.distinct_xdata = sorted(self.distinct_xdata, key=str.lower)
+				else:
+					self.distinct_xdata = sorted(self.distinct_xdata, key=str.lower, reverse=True)
+			else:
+				raise Exception("As of right now, this only sorts alphabetically.")
+
+			pos_zip = {k:v for k,v in zip(self.distinct_xdata, x_positions)}
+
+			if self.bars:
+				olive_x = []
+				longest_x = 0
+				for bar in self.bars:
+					data_to_append = list(set([pos_zip[x] for x in bar.xdata]))
+					if len(data_to_append) > longest_x:
+						longest_x = len(data_to_append)
+					olive_x += data_to_append
+
+				min_x_dist = np.min(np.diff(sorted(list(set(olive_x)))))
+				max_repeat = Counter(olive_x).most_common(1)[0][1]
+
+				for i, flower in enumerate(self.bars):
+					if not flower.assigned_color:
+						flower.color = color_cycles[color_index%num_colors]
+						color_index += 1
+					if flower.opacity or flower.opacity==0:
+						flower.color[3] = flower.opacity
+
+					ordered_x = [pos_zip[x] for x in flower.xdata]
+					c = flower.water(ordered_x, flower.ydata, w, h, xmin, xmax, ymin, ymax, len(self.bars), i, max_repeat, min_x_dist, longest_x)
+					c.set('transform', f"translate({self.margin_left},{self.margin_top})")
+					self.svg.append(c)
+
+			for flower in self.lines:
+				if not flower.assigned_color:
+					flower.color = color_cycles[color_index%num_colors]
+					color_index += 1
+				
+				if flower.opacity or flower.opacity==0:
+					flower.color[3] = flower.opacity
+
+				ordered_x = [pos_zip[x] for x in flower.xdata]
+				c = flower.water(ordered_x, flower.ydata, w, h, xmin, xmax, ymin, ymax)
+				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
+				self.svg.append(c)
+
+			for flower in self.scatters:
+				if not flower.assigned_color:
+					flower.color = color_cycles[color_index%num_colors]
+					color_index += 1
+
+				if flower.opacity or flower.opacity==0:
+					flower.color[3] = flower.opacity
+
+				ordered_x = [pos_zip[x] for x in flower.xdata]
+				c = flower.water(ordered_x, flower.ydata, w, h, xmin, xmax, ymin, ymax)
+				c.set('transform', f"translate({self.margin_left},{self.margin_top})")
+				self.svg.append(c)
+
+
+
+
 
 	def package_for_grid(self):
 		return {
@@ -150,5 +228,3 @@ class FlowerPlot(object):
 		with open(filepath, 'w') as f:
 			f.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?><!DOCTYPE svg PUBLIC \"-//W3C//DTD SVG 1.1//EN\" \"http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd\">")
 			f.write(str(et.tostring(self.grid).decode('utf-8')))
-
-

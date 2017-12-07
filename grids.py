@@ -80,14 +80,24 @@ class Grid(object):
 			title.set('y', f"{self.margin_top + self.plot_height + self.margin_bottom - self.x_config['title_font_size']}")
 			self.grid.append(title)
 
-		if 'numeric' in self.x_dtypes and len(self.x_dtypes) == 1:
-			xmin = np.min(self.xdata)
-			xmax = np.max(self.xdata)
-			x_grid_labels = precise_ticks(xmin, xmax, ticks)
-			if ticks > 0:
-				x_positions = [[(self.plot_width-self.plot_margins[2]-self.plot_margins[3])*(x - xmin)/(xmax-xmin), x] for x in x_grid_labels]
-			else:
-				x_positions = []
+		if len(self.x_dtypes) == 1:#if 'numeric' in self.x_dtypes and len(self.x_dtypes) == 1:
+			if 'numeric' in self.x_dtypes:
+				xmin = np.min(self.xdata)
+				xmax = np.max(self.xdata)
+				x_grid_labels = precise_ticks(xmin, xmax, ticks)
+				if ticks > 0:
+					x_positions = [[(self.plot_width-self.plot_margins[2]-self.plot_margins[3])*(x - xmin)/(xmax-xmin), x] for x in x_grid_labels]
+				else:
+					x_positions = []
+			elif 'string' in self.x_dtypes:
+				xmin = 0
+				xmax = self.plot_width #This comes from the svg package; it's defined as the default width of a graph with string x_dtypes
+				x_grid_labels = precise_ticks(0, self.plot_width, len(self.xdata))
+				if len(self.xdata) > 0:
+					x_positions = [[(self.plot_width-self.plot_margins[2]-self.plot_margins[3])*(x - xmin)/(xmax-xmin), x] for x in x_grid_labels]
+				else:
+					x_positions = []
+
 
 			if self.x_config['show_grid'] and ticks > 0:
 				for x in x_positions:
@@ -109,14 +119,27 @@ class Grid(object):
 
 			if self.x_config['show_labels'] and ticks > 0:
 				labels = et.Element('g')
-				for i, label in enumerate(x_grid_labels):
-					text = et.Element('text')
-					text.text = f"{humanreadable(label)}"
-					text.set('x', f"{self.margin_left + self.plot_margins[2] + x_positions[i][0]}")
-					text.set('y', f"{self.margin_top + self.plot_height - self.plot_margins[1] + 2*self.x_config['font_size']}")
-					text.set('text-anchor', 'middle')
-					text.set('font-size', f"{self.x_config['font_size']}")
-					labels.append(text)
+
+				if 'numeric' in self.x_dtypes:
+					for i, label in enumerate(x_grid_labels):
+						text = et.Element('text')
+						text.text = f"{humanreadable(label)}"
+						text.set('x', f"{self.margin_left + self.plot_margins[2] + x_positions[i][0]}")
+						text.set('y', f"{self.margin_top + self.plot_height - self.plot_margins[1] + 2*self.x_config['font_size']}")
+						text.set('text-anchor', 'middle')
+						text.set('font-size', f"{self.x_config['font_size']}")
+						labels.append(text)
+					
+				elif 'string' in self.x_dtypes:
+					for i, label in enumerate(self.xdata):
+						text = et.Element('text')
+						text.text = f"{label}"
+						text.set('x', f"{self.margin_left + self.plot_margins[2] + x_positions[i][0]}")
+						text.set('y', f"{self.margin_top + self.plot_height - self.plot_margins[1] + 2*self.x_config['font_size']}")
+						text.set('text-anchor', 'middle')
+						text.set('font-size', f"{self.x_config['font_size']}")
+						labels.append(text)
+
 				self.grid.append(labels)
 
 			x_grid.set('transform', f"translate({self.plot_margins[2]},{self.plot_margins[0]})")
