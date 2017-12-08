@@ -55,7 +55,10 @@ class FlowerPlot(object):
 			ymax = np.max([np.max(flower.ydata) for flower in self.flowers])
 			if ymax < 0 or ymin > 0:
 				olive_y.append(0)
-		self.distinct_xdata = list(set(olive_x))
+
+		x_seen = set()
+		self.distinct_xdata = [x for x in olive_x if not (x in x_seen or x_seen.add(x))] #This will preserve the order of first appearance
+		#self.distinct_xdata = list(set(olive_x))
 		self.distinct_ydata = list(set(olive_y))
 
 		if len(self.x_dtypes) > 1:
