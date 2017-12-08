@@ -152,6 +152,8 @@ class FlowerPlot(object):
 					self.distinct_xdata = sorted(self.distinct_xdata, key=str.lower)
 				else:
 					self.distinct_xdata = sorted(self.distinct_xdata, key=str.lower, reverse=True)
+			elif self.x_axis['sort_by'] == 'none':
+				pass
 			else:
 				raise Exception("As of right now, this only sorts alphabetically.")
 
