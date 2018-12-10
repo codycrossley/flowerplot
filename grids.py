@@ -4,6 +4,8 @@ from . styling import color_cycles, x_config, y_config
 from math import floor, ceil, log
 from decimal import Decimal
 
+testvar = 'newchange'
+
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
 	'version':'1.1',
