@@ -6,7 +6,7 @@ from decimal import Decimal
 
 testvar = 'newchange'
 
-mastertest = 'change_to_master'
+mastertest = 'changingggg'
 
 svg_config = {
 	'style':'fill-rule:evenodd;clip-rule:evenodd;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:1.5;',
